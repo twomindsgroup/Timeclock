@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Clock Dashboard — Deadline Signs</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0d0f14;
+  --surface:  #141720;
+  --surface2: #1c2030;
+  --border:   #252a3a;
+  --green:    #00e87a;
+  --green-dim:rgba(0,232,122,0.12);
+  --amber:    #f5a623;
+  --amber-dim:rgba(245,166,35,0.12);
+  --red:      #ff4d6a;
+  --red-dim:  rgba(255,77,106,0.12);
+  --blue:     #4d9eff;
+  --text:     #e8ecf4;
+  --muted:    #5a6072;
+  --muted2:   #3a3f52;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{font-family:'Sora',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);}
+
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{
+  width:34px;height:34px;background:var(--green);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--bg);flex-shrink:0;
+}
+.brand-name{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;line-height:1.2;}
+.brand-sub{color:var(--muted);font-size:0.6rem;letter-spacing:0.08em;}
+.header-right{display:flex;align-items:center;gap:14px;}
+.refresh-info{font-size:0.65rem;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.btn-sm{
+  padding:6px 12px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-family:'Sora',sans-serif;
+  font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.15s;
+}
+.btn-sm:hover{border-color:var(--muted2);color:var(--text);}
+
+.container{max-width:1100px;margin:0 auto;padding:28px 24px;}
+.section-label{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.18em;color:var(--muted);margin-bottom:12px;}
+
+/* STATUS CARDS */
+.status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:32px;}
+.status-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:20px 18px;position:relative;overflow:hidden;transition:border-color 0.2s;
+}
+.status-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--green);opacity:0;transition:opacity 0.2s;
+}
+.status-card.in{border-color:rgba(0,232,122,0.3);background:var(--green-dim);}
+.status-card.in::before{opacity:1;}
+.status-card.break{border-color:rgba(245,166,35,0.3);background:var(--amber-dim);}
+.status-card.break::before{background:var(--amber);opacity:1;}
+
+.card-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.avatar{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:1.3rem;
+  background:var(--surface2);color:var(--muted);border:2px solid var(--border);
+  overflow:hidden;flex-shrink:0;
+}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+.avatar.green{background:var(--green-dim);color:var(--green);border-color:rgba(0,232,122,0.3);}
+.avatar.amber{background:var(--amber-dim);color:var(--amber);border-color:rgba(245,166,35,0.3);}
+.card-name{font-size:0.95rem;font-weight:700;}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;
+  padding:3px 8px;border-radius:20px;
+}
+.badge-in{background:var(--green-dim);color:var(--green);}
+.badge-break{background:var(--amber-dim);color:var(--amber);}
+.badge-out{background:var(--surface2);color:var(--muted);}
+.bdot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.bdot.pulse{animation:pulse 1.5s infinite;}
+.card-detail{font-size:0.7rem;color:var(--muted);margin-top:4px;}
+
+/* ACTIVITY LOG */
+.log-table{width:100%;border-collapse:collapse;font-size:0.75rem;}
+.log-table th{
+  text-align:left;padding:10px 12px;color:var(--muted);font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;font-size:0.6rem;
+  border-bottom:1px solid var(--border);
+}
+.log-table td{padding:10px 12px;border-bottom:1px solid rgba(37,42,58,0.5);}
+.log-table tr:hover td{background:var(--surface2);}
+.type-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle;}
+.photo-link{color:var(--blue);text-decoration:none;font-size:0.65rem;}
+.photo-link:hover{text-decoration:underline;}
+
+/* SETUP SCREEN */
+.setup{
+  max-width:480px;margin:80px auto;background:var(--surface);
+  border:1px solid var(--border);border-radius:18px;padding:32px;text-align:center;
+}
+.setup h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.06em;margin-bottom:8px;}
+.setup p{font-size:0.78rem;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+.setup input{
+  width:100%;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-family:'Sora',sans-serif;font-size:0.8rem;
+  margin-bottom:12px;
+}
+.setup input:focus{outline:none;border-color:var(--muted2);}
+.setup .btn{
+  width:100%;padding:12px;border-radius:9px;border:none;
+  background:var(--green);color:var(--bg);font-family:'Sora',sans-serif;
+  font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;
+}
+.setup .btn:hover{opacity:0.9;}
+.setup-error{color:var(--red);font-size:0.72rem;margin-top:8px;min-height:20px;}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:0.8rem;}
+
+/* SUMMARY BAR */
+.summary{
+  display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;
+}
+.summary-stat{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:14px 18px;min-width:120px;
+}
+.summary-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;line-height:1;}
+.summary-label{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-top:2px;}
+.summary-stat.clocked-in .summary-num{color:var(--green);}
+.summary-stat.on-break .summary-num{color:var(--amber);}
+.summary-stat.off-clock .summary-num{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">
+    <div class="brand-mark">DS</div>
+    <div>
+      <div class="brand-name">Deadline Signs</div>
+      <div class="brand-sub">Time Clock — Live Dashboard</div>
+    </div>
+  </div>
+  <div class="header-right" id="headerRight" style="display:none;">
+    <div class="refresh-info"><span class="live-dot"></span> <span id="refreshLabel">Updating...</span></div>
+    <button class="btn-sm" onclick="fetchStatus()">↻ Refresh</button>
+    <button class="btn-sm" onclick="showSetup()">⚙ Settings</button>
+  </div>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setupScreen" class="setup">
+  <h2>Connect Dashboard</h2>
+  <p>Paste your Google Apps Script Web App URL below.<br>This is the same URL configured in the kiosk app.</p>
+  <input id="setupUrl" placeholder="https://script.google.com/macros/s/.../exec" spellcheck="false">
+  <button class="btn" onclick="saveUrl()">Connect</button>
+  <div class="setup-error" id="setupError"></div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="dashboard" class="container" style="display:none;">
+  <div class="summary" id="summaryBar"></div>
+
+  <div class="section-label">Employee Status</div>
+  <div class="status-grid" id="statusGrid"></div>
+
+  <div class="section-label">Today's Activity</div>
+  <div id="logSection"></div>
+</div>
+
+<script>
+// ── CONFIG ──
+let apiUrl = localStorage.getItem('tc_dash_url') || '';
+let refreshTimer = null;
+const REFRESH_INTERVAL = 30000; // 30 seconds
+
+// ── HELPERS ──
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function typeColor(type) {
+  return { clock_in:'var(--green)', clock_out:'var(--red)', break_start:'var(--amber)', break_end:'var(--blue)' }[type] || 'var(--muted)';
+}
+
+function deriveStatus(punches, emp) {
+  const ep = punches.filter(p => p.employee === emp).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  if (!ep.length) return 'out';
+  const last = ep[ep.length - 1].type;
+  if (last === 'clock_in' || last === 'break_end') return 'in';
+  if (last === 'break_start') return 'break';
+  return 'out';
+}
+
+function calcHours(punches, emp) {
+  const ep = punches.filter(p => p.employee === emp).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  let total = 0, clockIn = null;
+  for (const p of ep) {
+    const ts = new Date(p.timestamp).getTime();
+    if (p.type === 'clock_in' || p.type === 'break_end') clockIn = ts;
+    if ((p.type === 'clock_out' || p.type === 'break_start') && clockIn) {
+      total += ts - clockIn; clockIn = null;
+    }
+  }
+  if (clockIn) total += Date.now() - clockIn;
+  const h = Math.floor(total / 3600000);
+  const m = Math.floor((total % 3600000) / 60000);
+  return h ? `${h}h ${m}m` : `${m}m`;
+}
+
+function fmtTime(ts) {
+  return new Date(ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
+function getLastPunch(punches, emp) {
+  const ep = punches.filter(p => p.employee === emp).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  return ep[0] || null;
+}
+
+// ── FETCH ──
+async function fetchStatus() {
+  if (!apiUrl) return;
+  document.getElementById('refreshLabel').textContent = 'Updating...';
+  try {
+    const res = await fetch(apiUrl + '?action=today', { redirect: 'follow' });
+    const data = await res.json();
+    if (data.success) {
+      renderDashboard(data.punches);
+      document.getElementById('refreshLabel').textContent =
+        'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    } else {
+      document.getElementById('refreshLabel').textContent = 'Error: ' + (data.error || 'Unknown');
+    }
+  } catch (err) {
+    document.getElementById('refreshLabel').textContent = 'Connection failed';
+    console.error('Fetch error:', err);
+  }
+}
+
+// ── RENDER ──
+function renderDashboard(punches) {
+  // Get unique employees
+  const employees = [...new Set(punches.map(p => p.employee))];
+
+  // Sort: clocked in first, then on break, then out
+  const order = { in: 0, break: 1, out: 2 };
+  employees.sort((a, b) => {
+    const sa = deriveStatus(punches, a);
+    const sb = deriveStatus(punches, b);
+    return (order[sa] ?? 3) - (order[sb] ?? 3);
+  });
+
+  // Summary
+  let countIn = 0, countBreak = 0, countOut = 0;
+  employees.forEach(e => {
+    const s = deriveStatus(punches, e);
+    if (s === 'in') countIn++;
+    else if (s === 'break') countBreak++;
+    else countOut++;
+  });
+
+  document.getElementById('summaryBar').innerHTML = `
+    <div class="summary-stat clocked-in"><div class="summary-num">${countIn}</div><div class="summary-label">Clocked In</div></div>
+    <div class="summary-stat on-break"><div class="summary-num">${countBreak}</div><div class="summary-label">On Break</div></div>
+    <div class="summary-stat off-clock"><div class="summary-num">${countOut}</div><div class="summary-label">Off Clock</div></div>
+    <div class="summary-stat"><div class="summary-num">${punches.length}</div><div class="summary-label">Punches Today</div></div>
+  `;
+
+  // Status cards
+  const grid = document.getElementById('statusGrid');
+  if (!employees.length) {
+    grid.innerHTML = '<div class="empty">No activity yet today.</div>';
+  } else {
+    grid.innerHTML = employees.map(emp => {
+      const status = deriveStatus(punches, emp);
+      const initials = emp.substring(0, 2).toUpperCase();
+      const hours = calcHours(punches, emp);
+      const last = getLastPunch(punches, emp);
+      const avatarClass = status === 'in' ? 'green' : status === 'break' ? 'amber' : '';
+
+      let badgeHtml = '';
+      if (status === 'in') badgeHtml = '<span class="badge badge-in"><span class="bdot pulse"></span>Clocked In</span>';
+      else if (status === 'break') badgeHtml = '<span class="badge badge-break"><span class="bdot pulse"></span>On Break</span>';
+      else badgeHtml = '<span class="badge badge-out"><span class="bdot"></span>Off Clock</span>';
+
+      const photoHtml = last && last.photoUrl
+        ? `<img src="${esc(last.photoUrl)}" alt="">`
+        : esc(initials);
+
+      return `
+        <div class="status-card ${status}">
+          <div class="card-top">
+            <div class="avatar ${avatarClass}">${photoHtml}</div>
+            <div>
+              <div class="card-name">${esc(emp)}</div>
+              ${badgeHtml}
+            </div>
+          </div>
+          ${last ? `<div class="card-detail">Last: ${esc(last.typeLabel)} at ${fmtTime(last.timestamp)}</div>` : ''}
+          <div class="card-detail">Today: ${esc(hours)}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // Activity log
+  const sorted = [...punches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const logSection = document.getElementById('logSection');
+  if (!sorted.length) {
+    logSection.innerHTML = '<div class="empty">No punches recorded today.</div>';
+  } else {
+    logSection.innerHTML = `
+      <table class="log-table">
+        <thead><tr><th>Employee</th><th>Action</th><th>Time</th><th>Photo</th></tr></thead>
+        <tbody>
+          ${sorted.map(p => `
+            <tr>
+              <td style="font-weight:600;">${esc(p.employee)}</td>
+              <td><span class="type-dot" style="background:${typeColor(p.type)};"></span>${esc(p.typeLabel)}</td>
+              <td style="color:var(--muted);">${fmtTime(p.timestamp)}</td>
+              <td>${p.photoUrl ? `<a class="photo-link" href="${esc(p.photoUrl)}" target="_blank">View</a>` : '—'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+}
+
+// ── SETUP / CONFIG ──
+function showSetup() {
+  document.getElementById('setupScreen').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('headerRight').style.display = 'none';
+  document.getElementById('setupUrl').value = apiUrl;
+}
+
+async function saveUrl() {
+  const url = document.getElementById('setupUrl').value.trim();
+  const errEl = document.getElementById('setupError');
+  errEl.textContent = '';
+
+  if (!url) { errEl.textContent = 'Please enter a URL.'; return; }
+  if (!url.startsWith('https://script.google.com/')) {
+    errEl.textContent = 'URL should start with https://script.google.com/';
+    return;
+  }
+
+  errEl.textContent = 'Testing connection...';
+  try {
+    const res = await fetch(url + '?action=today', { redirect: 'follow' });
+    const data = await res.json();
+    if (!data.success && data.error) {
+      errEl.textContent = 'Connected but got error: ' + data.error;
+      return;
+    }
+    // Success
+    apiUrl = url;
+    localStorage.setItem('tc_dash_url', url);
+    startDashboard();
+  } catch (err) {
+    errEl.textContent = 'Connection failed. Check the URL and make sure the Apps Script is deployed as "Anyone".';
+  }
+}
+
+function startDashboard() {
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('headerRight').style.display = 'flex';
+  fetchStatus();
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(fetchStatus, REFRESH_INTERVAL);
+}
+
+// ── INIT ──
+if (apiUrl) {
+  startDashboard();
+} else {
+  document.getElementById('setupScreen').style.display = 'block';
+}
+</script>
+</body>
+</html>
