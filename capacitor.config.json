@@ -1,0 +1,16 @@
+{
+  "appId": "com.deadlinesigns.timeclock",
+  "appName": "DS Time Clock",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "StatusBar": {
+      "visible": false
+    },
+    "KeepAwake": {
+      "enabled": true
+    }
+  }
+}
