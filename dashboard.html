@@ -186,6 +186,7 @@ body{font-family:'Sora',system-ui,-apple-system,sans-serif;background:var(--bg);
 let apiUrl = localStorage.getItem('tc_dash_url') || '';
 let refreshTimer = null;
 const REFRESH_INTERVAL = 30000; // 30 seconds
+const PROXY_URL = '/timeclock-proxy.php';
 
 // ── HELPERS ──
 function esc(str) {
@@ -237,9 +238,7 @@ async function fetchStatus() {
   if (!apiUrl) return;
   document.getElementById('refreshLabel').textContent = 'Updating...';
   try {
-    // Google Apps Script redirects (302) to a googleusercontent.com URL.
-    // Use the full URL with action param and follow redirects.
-    const res = await fetch(apiUrl + '?action=today');
+    const res = await fetch(PROXY_URL + '?action=today');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data.success) {
@@ -363,7 +362,7 @@ async function saveUrl() {
 
   errEl.textContent = 'Connecting...';
   try {
-    const res = await fetch(url + '?action=today');
+    const res = await fetch(PROXY_URL + '?action=today');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data.success) {
@@ -374,7 +373,7 @@ async function saveUrl() {
       errEl.textContent = 'Connected but got error: ' + (data.error || 'Unknown');
     }
   } catch (err) {
-    errEl.textContent = 'Connection failed. Check the URL and make sure the Apps Script is deployed as "Anyone".';
+    errEl.textContent = 'Connection failed. Check proxy and Apps Script deployment.';
   }
 }
 
