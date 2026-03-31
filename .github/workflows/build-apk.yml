@@ -33,17 +33,35 @@ jobs:
       - name: Sync web assets
         run: npx cap sync android
 
-      - name: Set Android version
+      - name: Bump version code
         run: |
           sed -i 's/versionCode 1/versionCode ${{ github.run_number }}/' android/app/build.gradle
 
-      # Configure kiosk-friendly Android settings
-      - name: Patch AndroidManifest for kiosk mode
+      - name: Patch AndroidManifest (Python)
         run: |
-          MANIFEST=android/app/src/main/AndroidManifest.xml
-          # Keep screen on, fullscreen, portrait
-          sed -i 's/android:screenOrientation="[^"]*"/android:screenOrientation="portrait"/' $MANIFEST || true
-          sed -i 's/<activity/<activity android:screenOrientation="portrait" android:keepScreenOn="true"/' $MANIFEST || true
+          python3 << 'EOF'
+          import re
+          path = 'android/app/src/main/AndroidManifest.xml'
+          with open(path, 'r') as f:
+              content = f.read()
+          if 'android.permission.CAMERA' not in content:
+              content = content.replace(
+                  '<application',
+                  '    <uses-permission android:name="android.permission.CAMERA" />\n'
+                  '    <uses-feature android:name="android.hardware.camera" android:required="false" />\n'
+                  '    <application',
+                  1
+              )
+              print('Camera permission added')
+          content = re.sub(
+              r'(<activity[^>]*android:name="[^"]*MainActivity[^"]*")',
+              r'\1\n            android:screenOrientation="sensorLandscape"\n            android:keepScreenOn="true"',
+              content
+          )
+          with open(path, 'w') as f:
+              f.write(content)
+          print('Manifest patched OK')
+          EOF
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
@@ -60,10 +78,11 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
-      - name: Show APK size
+      - name: Verify APK
         run: |
           APK=android/app/build/outputs/apk/debug/app-debug.apk
           if [ -f "$APK" ]; then
-            SIZE=$(du -sh "$APK" | cut -f1)
-            echo "✅ APK built successfully — size: $SIZE"
+            echo "✅ APK built — $(du -sh $APK | cut -f1)"
+          else
+            echo "❌ APK not found"; exit 1
           fi

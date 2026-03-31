@@ -376,7 +376,7 @@ let employees=JSON.parse(localStorage.getItem('tc_employees')||'null')||
   [{name:'Megan',installEnabled:false},{name:'Carlie',installEnabled:false},{name:'Noah',installEnabled:true}];
 let punches=JSON.parse(localStorage.getItem('tc_punches')||'[]');
 let settings=JSON.parse(localStorage.getItem('tc_settings')||'{"pin":"1234","sheetsUrl":""}');
-let pinBuffer='',activeEmployee=null,selectedType=null,capturedPhoto=null,editingPunchId=null,camStream=null;
+let pinBuffer='',activeEmployee=null,selectedType=null,capturedPhoto=null,capturedThumb=null,editingPunchId=null,camStream=null;
 
 if(employees.length&&typeof employees[0]==='string')
   employees=employees.map(n=>({name:n,installEnabled:n==='Noah'}));
@@ -553,11 +553,24 @@ function startCapture(){
   },1000);
 }
 
-function takeSnapshot(){
+function takeSnapshot() {
   const v=document.getElementById('camVideo'),c=document.getElementById('camCanvas');
-  c.width=v.videoWidth||640;c.height=v.videoHeight||480;
+  // Resize to max 800px wide to keep base64 size manageable
+  const maxW=800;
+  const scale=Math.min(1, maxW/(v.videoWidth||640));
+  c.width  = Math.round((v.videoWidth||640)*scale);
+  c.height = Math.round((v.videoHeight||480)*scale);
   c.getContext('2d').drawImage(v,0,0,c.width,c.height);
-  capturedPhoto=c.toDataURL('image/jpeg',0.7);
+  // Full quality for upload (0.6)
+  capturedPhoto=c.toDataURL('image/jpeg',0.6);
+
+  // Thumbnail for local display only (200px wide, very small)
+  const tc=document.createElement('canvas');
+  const ts2=Math.min(1,200/c.width);
+  tc.width=Math.round(c.width*ts2); tc.height=Math.round(c.height*ts2);
+  tc.getContext('2d').drawImage(c,0,0,tc.width,tc.height);
+  capturedThumb=tc.toDataURL('image/jpeg',0.4);
+
   const f=document.getElementById('camFlash');f.classList.add('flash');setTimeout(()=>f.classList.remove('flash'),150);
   document.getElementById('photoPreview').src=capturedPhoto;
   document.getElementById('photoTitle').textContent=`${activeEmployee} \u2014 ${punchLabel(selectedType)}`;
@@ -569,10 +582,14 @@ function confirmPunchNoPhoto(){capturedPhoto=null;recordPunch();}
 function confirmPunch(){recordPunch();}
 
 function recordPunch(){
-  const p={id:uid(),emp:activeEmployee,type:selectedType,ts:Date.now(),photo:capturedPhoto,synced:false};
+  // Store thumbnail only in localStorage (keeps storage small)
+  // Full photo is sent to Drive via syncPunch
+  const p={id:uid(),emp:activeEmployee,type:selectedType,ts:Date.now(),photo:capturedThumb||null,photoFull:capturedPhoto||null,synced:false};
   punches.push(p);save();showState('stateIdle');stopCamera();render();
   showToast(`${activeEmployee} \u2014 ${punchLabel(selectedType)}`,'green');
   syncPunch(p);
+  // Clear full photo from memory after kicking off sync
+  capturedPhoto=null;capturedThumb=null;
 }
 
 function cancelPunch(){stopCamera();selectedType=activeEmployee=capturedPhoto=null;showState('stateIdle');}
@@ -581,15 +598,27 @@ async function syncPunch(p){
   if(!settings.sheetsUrl){updateSyncUI('err','No URL');return;}
   updateSyncUI('syncing','Syncing\u2026');
   try{
-    const res=await fetch(settings.sheetsUrl,{method:'POST',body:JSON.stringify({
-      id:p.id,employee:p.emp,type:p.type,typeLabel:punchLabel(p.type),
+    const payload={
+      id:p.id, employee:p.emp, type:p.type, typeLabel:punchLabel(p.type),
       readableTime:new Date(p.ts).toLocaleString(),
-      timestamp:new Date(p.ts).toISOString(),photoTaken:p.photo?'Yes':'No'
-    })});
+      timestamp:new Date(p.ts).toISOString(),
+      photoTaken:p.photoFull||p.photo?'Yes':'No',
+      photoBase64:p.photoFull||''  // full quality for Drive upload
+    };
+    // No Content-Type header = text/plain = no CORS preflight needed
+    const res=await fetch(settings.sheetsUrl,{method:'POST',redirect:'follow',body:JSON.stringify(payload)});
     const d=await res.json();
-    if(d.success){p.synced=true;save();updateSyncUI('ok','Synced');}
-    else throw new Error(d.error);
-  }catch(e){updateSyncUI('err','Sync failed');}
+    if(d.success){
+      p.synced=true;
+      if(d.photoUrl) p.photoUrl=d.photoUrl;
+      p.photoFull=null; // clear full photo from memory now that it's in Drive
+      save();
+      updateSyncUI('ok','Synced');
+    } else throw new Error(d.error||'Script error');
+  }catch(err){
+    updateSyncUI('err','Sync failed');
+    console.error('Sync error:',err);
+  }
 }
 
 function updateSyncUI(s,l){
