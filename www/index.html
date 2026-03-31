@@ -2,274 +2,186 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Time Clock — Deadline Signs</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:        #0d0f14;
-  --surface:   #141720;
-  --surface2:  #1c2030;
-  --border:    #252a3a;
-  --green:     #00e87a;
-  --green-dim: rgba(0,232,122,0.12);
-  --amber:     #f5a623;
-  --amber-dim: rgba(245,166,35,0.12);
-  --red:       #ff4d6a;
-  --red-dim:   rgba(255,77,106,0.12);
-  --blue:      #4d9eff;
-  --blue-dim:  rgba(77,158,255,0.12);
-  --text:      #e8ecf4;
-  --muted:     #5a6072;
-  --muted2:    #3a3f52;
+  --bg:#0d0f14; --surface:#141720; --surface2:#1c2030; --border:#252a3a;
+  --green:#00e87a; --green-dim:rgba(0,232,122,0.12);
+  --amber:#f5a623; --amber-dim:rgba(245,166,35,0.12);
+  --red:#ff4d6a;   --red-dim:rgba(255,77,106,0.12);
+  --blue:#4d9eff;  --blue-dim:rgba(77,158,255,0.12);
+  --text:#e8ecf4;  --muted:#5a6072; --muted2:#3a3f52;
 }
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body { height:100%; overflow:hidden; }
-body { font-family:'Sora',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); user-select:none; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+html,body{height:100%;width:100%;overflow:hidden;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);user-select:none;-webkit-user-select:none;display:flex;flex-direction:column;}
 
 /* HEADER */
-.header {
-  display:grid; grid-template-columns:1fr auto 1fr;
-  align-items:center; padding:14px 28px;
-  border-bottom:1px solid var(--border);
-  background:var(--surface); position:relative; z-index:10;
-}
-.brand { display:flex; align-items:center; gap:10px; }
-.brand-mark {
-  width:34px; height:34px; background:var(--green); border-radius:7px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Bebas Neue',sans-serif; font-size:1.2rem; color:var(--bg); flex-shrink:0;
-}
-.brand-name { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; line-height:1.2; }
-.brand-sub { color:var(--muted); font-size:0.6rem; font-weight:400; letter-spacing:0.08em; }
-.clock-display { text-align:center; }
-.clock-time { font-family:'Bebas Neue',sans-serif; font-size:2.4rem; letter-spacing:0.05em; color:var(--text); line-height:1; }
-.clock-date { font-size:0.65rem; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; margin-top:2px; }
-.header-right { display:flex; justify-content:flex-end; align-items:center; gap:10px; }
-.btn-admin {
-  padding:7px 14px; border-radius:6px; border:1px solid var(--border);
-  background:transparent; color:var(--muted); font-family:'Sora',sans-serif;
-  font-size:0.7rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
-  cursor:pointer; transition:all 0.15s;
-}
-.btn-admin:hover { border-color:var(--muted2); color:var(--text); }
+.header{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:16px;padding:11px 22px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--bg);}
+.brand-name{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;line-height:1.2;}
+.brand-sub{color:var(--muted);font-size:0.58rem;font-weight:400;letter-spacing:0.08em;}
+.clock-display{text-align:center;}
+.clock-time{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:0.05em;color:var(--text);line-height:1;}
+.clock-date{font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+.sync-wrap{display:flex;align-items:center;gap:6px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted2);transition:background 0.3s;}
+.sync-dot.syncing{background:var(--amber);animation:pulse 0.8s infinite;}
+.sync-dot.ok{background:var(--green);}
+.sync-dot.err{background:var(--red);}
+.sync-label{font-size:0.6rem;color:var(--muted);}
+.btn-admin{padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Sora',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;}
+.btn-admin:hover{color:var(--text);border-color:var(--muted2);}
 
-/* MAIN */
-.main { height:calc(100vh - 70px); display:flex; flex-direction:column; padding:28px 32px 24px; gap:24px; overflow-y:auto; }
-.section-label { font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); margin-bottom:10px; }
+/* LANDSCAPE LAYOUT */
+.main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 360px;}
 
-/* EMPLOYEE CARDS — responsive */
-.employee-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
-.emp-card {
-  background:var(--surface); border:1px solid var(--border); border-radius:14px;
-  padding:22px 18px; cursor:pointer; transition:all 0.18s; position:relative; overflow:hidden;
-}
-.emp-card::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background:var(--green); opacity:0; transition:opacity 0.18s;
-}
-.emp-card:hover { border-color:var(--muted2); transform:translateY(-1px); }
-.emp-card:hover::before { opacity:0.6; }
-.emp-card.status-in { border-color:rgba(0,232,122,0.3); background:var(--green-dim); }
-.emp-card.status-in::before { opacity:1; }
-.emp-card.status-break { border-color:rgba(245,166,35,0.3); background:var(--amber-dim); }
-.emp-card.status-break::before { background:var(--amber); opacity:1; }
-.emp-card.status-out { border-color:var(--border); }
+/* LEFT */
+.left-panel{padding:18px 18px 18px 22px;display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden;}
+.section-label{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.18em;color:var(--muted);margin-bottom:12px;}
+.emp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-content:start;}
 
-.emp-avatar {
-  width:52px; height:52px; border-radius:50%; margin-bottom:12px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Bebas Neue',sans-serif; font-size:1.5rem;
-  background:var(--surface2); color:var(--muted);
-  border:2px solid var(--border); overflow:hidden; position:relative;
-}
-.emp-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
-.emp-avatar.green { background:var(--green-dim); color:var(--green); border-color:rgba(0,232,122,0.3); }
-.emp-avatar.amber { background:var(--amber-dim); color:var(--amber); border-color:rgba(245,166,35,0.3); }
+/* EMPLOYEE CARDS */
+.emp-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:20px 12px 14px;cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden;text-align:center;display:flex;flex-direction:column;align-items:center;}
+.emp-card-bar{position:absolute;top:0;left:0;right:0;height:4px;background:var(--border);border-radius:14px 14px 0 0;transition:background 0.15s;}
+.emp-card:hover{transform:translateY(-1px);}
+.emp-card.status-in{border-color:rgba(0,232,122,0.45);background:var(--green-dim);}
+.emp-card.status-in .emp-card-bar{background:var(--green);}
+.emp-card.status-break{border-color:rgba(245,166,35,0.45);background:var(--amber-dim);}
+.emp-card.status-break .emp-card-bar{background:var(--amber);}
+.emp-card.status-install{border-color:rgba(77,158,255,0.45);background:var(--blue-dim);}
+.emp-card.status-install .emp-card-bar{background:var(--blue);}
 
-.emp-name { font-size:1rem; font-weight:700; margin-bottom:4px; }
-.emp-status-badge {
-  display:inline-flex; align-items:center; gap:5px;
-  font-size:0.62rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em;
-  padding:3px 8px; border-radius:20px;
-}
-.badge-in { background:var(--green-dim); color:var(--green); }
-.badge-break { background:var(--amber-dim); color:var(--amber); }
-.badge-out { background:var(--surface2); color:var(--muted); }
-.dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
-.dot.pulse { animation:pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.emp-avatar{width:54px;height:54px;border-radius:50%;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;background:var(--surface2);color:var(--muted);border:2px solid var(--border);overflow:hidden;flex-shrink:0;}
+.emp-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.emp-card.status-in .emp-avatar{background:var(--green-dim);color:var(--green);border-color:rgba(0,232,122,0.35);}
+.emp-card.status-break .emp-avatar{background:var(--amber-dim);color:var(--amber);border-color:rgba(245,166,35,0.35);}
+.emp-card.status-install .emp-avatar{background:var(--blue-dim);color:var(--blue);border-color:rgba(77,158,255,0.35);}
 
-.emp-time { font-size:0.7rem; color:var(--muted); margin-top:6px; }
-.emp-today { font-size:0.72rem; color:var(--muted); margin-top:2px; }
+.emp-name{font-size:1rem;font-weight:700;margin-bottom:5px;}
+.emp-badge{display:inline-flex;align-items:center;gap:5px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:3px 9px;border-radius:20px;}
+.badge-in{background:var(--green-dim);color:var(--green);}
+.badge-break{background:var(--amber-dim);color:var(--amber);}
+.badge-install{background:var(--blue-dim);color:var(--blue);}
+.badge-out{background:var(--surface2);color:var(--muted);}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.dot.pulse{animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 
-.emp-action {
-  margin-top:12px; padding:8px 0; border-radius:8px; border:1px solid var(--border);
-  font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em;
-  text-align:center; transition:all 0.15s; color:var(--muted);
-}
-.emp-card.status-out .emp-action { border-color:rgba(0,232,122,0.4); color:var(--green); background:var(--green-dim); }
-.emp-card.status-in .emp-action { border-color:rgba(255,77,106,0.4); color:var(--red); background:var(--red-dim); }
-.emp-card.status-break .emp-action { border-color:rgba(0,232,122,0.4); color:var(--green); background:var(--green-dim); }
+.emp-time{font-size:0.65rem;color:var(--muted);margin-top:5px;}
+.emp-tap{margin-top:10px;padding:8px 0;border-radius:8px;width:100%;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);background:var(--surface2);border:1px solid var(--border);}
+.emp-card.status-out .emp-tap{border-color:rgba(0,232,122,0.3);color:var(--green);background:var(--green-dim);}
+.emp-card.status-in .emp-tap{border-color:rgba(255,77,106,0.3);color:var(--red);background:var(--red-dim);}
+.emp-card.status-break .emp-tap,.emp-card.status-install .emp-tap{border-color:rgba(0,232,122,0.3);color:var(--green);background:var(--green-dim);}
 
-/* RECENT LOG */
-.log-section { flex:1; min-height:0; display:flex; flex-direction:column; }
-.log-scroll { flex:1; overflow-y:auto; }
-.log-scroll::-webkit-scrollbar { width:4px; }
-.log-scroll::-webkit-scrollbar-track { background:transparent; }
-.log-scroll::-webkit-scrollbar-thumb { background:var(--muted2); border-radius:2px; }
-.log-entry {
-  display:grid; grid-template-columns:auto 1fr auto auto;
-  align-items:center; gap:12px;
-  padding:9px 12px; border-radius:8px; margin-bottom:4px;
-  background:var(--surface); border:1px solid var(--border);
-  font-size:0.72rem;
-}
-.log-type-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-.log-name { font-weight:600; }
-.log-type { color:var(--muted); }
-.log-time { color:var(--muted); font-size:0.65rem; }
-.log-photo-thumb { width:24px; height:24px; border-radius:4px; object-fit:cover; cursor:pointer; border:1px solid var(--border); }
+/* RIGHT */
+.right-panel{display:flex;flex-direction:column;}
+.action-panel{flex:1;padding:18px 20px;display:flex;flex-direction:column;min-height:0;}
 
-/* MODAL OVERLAY */
-.overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,0.75);
-  display:flex; align-items:center; justify-content:center;
-  z-index:500; backdrop-filter:blur(4px);
-  opacity:0; pointer-events:none; transition:opacity 0.2s;
-}
-.overlay.open { opacity:1; pointer-events:all; }
-.modal {
-  background:var(--surface); border:1px solid var(--border); border-radius:18px;
-  padding:28px; width:420px; max-width:90vw; position:relative;
-  transform:translateY(8px); transition:transform 0.2s;
-  max-height:85vh; overflow-y:auto;
-}
-.overlay.open .modal { transform:translateY(0); }
-.modal h2 { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:0.06em; margin-bottom:6px; }
-.modal-sub { font-size:0.75rem; color:var(--muted); margin-bottom:20px; }
-.modal-close {
-  position:absolute; top:16px; right:16px;
-  width:28px; height:28px; border-radius:50%;
-  background:var(--surface2); border:1px solid var(--border);
-  color:var(--muted); cursor:pointer; font-size:1rem;
-  display:flex; align-items:center; justify-content:center;
-}
-.modal-close:hover { color:var(--text); }
+/* LOG */
+.log-wrap{flex:1;overflow-y:auto;min-height:0;}
+.log-wrap::-webkit-scrollbar{width:4px;}
+.log-wrap::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:2px;}
+.log-entry{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);font-size:0.72rem;}
+.log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.log-name{font-weight:700;}
+.log-type{color:var(--muted);margin-left:4px;}
+.log-time{margin-left:auto;color:var(--muted);font-size:0.64rem;flex-shrink:0;}
+.log-photo{width:26px;height:26px;border-radius:5px;object-fit:cover;border:1px solid var(--border);cursor:pointer;flex-shrink:0;}
+
+/* ACTION SHEET */
+.punch-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;}
+.punch-who{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.05em;}
+.btn-x{width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;}
+.btn-x:hover{color:var(--text);}
+.action-btns{display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center;}
+.abtn{display:flex;align-items:center;gap:16px;padding:16px 14px;border-radius:14px;cursor:pointer;border:2px solid;transition:opacity 0.15s;}
+.abtn:active{opacity:0.8;}
+.abtn-icon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.abtn-icon svg{width:22px;height:22px;}
+.abtn-title{font-size:0.95rem;font-weight:700;display:block;margin-bottom:2px;}
+.abtn-sub{font-size:0.7rem;opacity:0.7;}
+.abtn-in{background:var(--green-dim);border-color:rgba(0,232,122,0.4);}
+.abtn-in .abtn-icon{background:rgba(0,232,122,0.2);}
+.abtn-in .abtn-title,.abtn-in .abtn-sub{color:var(--green);}
+.abtn-break{background:var(--amber-dim);border-color:rgba(245,166,35,0.4);}
+.abtn-break .abtn-icon{background:rgba(245,166,35,0.2);}
+.abtn-break .abtn-title,.abtn-break .abtn-sub{color:var(--amber);}
+.abtn-install{background:var(--blue-dim);border-color:rgba(77,158,255,0.4);}
+.abtn-install .abtn-icon{background:rgba(77,158,255,0.2);}
+.abtn-install .abtn-title,.abtn-install .abtn-sub{color:var(--blue);}
+.abtn-out{background:var(--red-dim);border-color:rgba(255,77,106,0.4);}
+.abtn-out .abtn-icon{background:rgba(255,77,106,0.2);}
+.abtn-out .abtn-title,.abtn-out .abtn-sub{color:var(--red);}
 
 /* CAMERA */
-.cam-wrap { position:relative; width:100%; border-radius:10px; overflow:hidden; background:#000; aspect-ratio:4/3; margin-bottom:14px; }
-.cam-wrap video, .cam-wrap canvas { width:100%; height:100%; object-fit:cover; display:block; }
-.cam-wrap canvas { position:absolute; top:0; left:0; }
-.cam-countdown {
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  font-family:'Bebas Neue',sans-serif; font-size:5rem; color:#fff;
-  text-shadow:0 0 20px rgba(0,0,0,0.8); pointer-events:none;
-}
-.cam-flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; transition:opacity 0.1s; }
-.cam-flash.flash { opacity:1; }
+.cam-wrap-outer{flex:1;min-height:0;position:relative;border-radius:12px;overflow:hidden;background:#000;}
+.cam-wrap-outer video{width:100%;height:100%;object-fit:cover;display:block;}
+.cam-wrap-outer canvas{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;}
+.cam-countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:6rem;color:#fff;text-shadow:0 0 30px rgba(0,0,0,0.8);pointer-events:none;}
+.cam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity 0.1s;}
+.cam-flash.flash{opacity:1;}
+.photo-prev-wrap{flex:1;min-height:0;border-radius:12px;overflow:hidden;}
+.photo-prev-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.cam-footer{display:flex;flex-direction:column;gap:8px;flex-shrink:0;margin-top:10px;}
+.btn-confirm{padding:15px;border-radius:12px;border:none;background:var(--green);color:var(--bg);font-family:'Sora',sans-serif;font-size:0.88rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;}
+.btn-confirm:hover{opacity:0.9;}
+.btn-retake{padding:11px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:'Sora',sans-serif;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;}
 
-.cam-unavailable {
-  color:var(--muted); font-size:0.75rem; text-align:center;
-  padding:20px; background:var(--surface2); border-radius:10px; margin-bottom:14px;
-}
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:420px;max-width:90vw;position:relative;transform:translateY(8px);transition:transform 0.2s;max-height:85vh;overflow-y:auto;}
+.overlay.open .modal{transform:translateY(0);}
+.modal h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.06em;margin-bottom:4px;}
+.modal-sub{font-size:0.72rem;color:var(--muted);margin-bottom:18px;}
+.modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{color:var(--text);}
 
-.photo-preview { width:100%; border-radius:10px; overflow:hidden; margin-bottom:14px; }
-.photo-preview img { width:100%; display:block; }
+/* PIN */
+.pin-display{display:flex;gap:10px;justify-content:center;margin-bottom:18px;}
+.pin-dot{width:13px;height:13px;border-radius:50%;background:var(--border);transition:background 0.15s;}
+.pin-dot.filled{background:var(--green);}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.pin-key{padding:15px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:1.5rem;cursor:pointer;text-align:center;transition:all 0.1s;}
+.pin-key:hover{background:var(--border);}
+.pin-key:active{transform:scale(0.95);}
 
-/* PUNCH OPTIONS */
-.punch-options { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
-.punch-btn {
-  padding:12px 8px; border-radius:10px; border:1px solid var(--border);
-  background:var(--surface2); color:var(--muted);
-  font-family:'Sora',sans-serif; font-size:0.72rem; font-weight:700;
-  text-transform:uppercase; letter-spacing:0.08em; cursor:pointer; transition:all 0.15s;
-}
-.punch-btn:hover { border-color:var(--muted2); color:var(--text); }
-.punch-btn.selected { border-color:var(--green); background:var(--green-dim); color:var(--green); }
-.punch-btn.break-end.selected { border-color:var(--amber); background:var(--amber-dim); color:var(--amber); }
-.punch-btn.clock-out.selected { border-color:var(--red); background:var(--red-dim); color:var(--red); }
-
-/* BUTTONS */
-.btn { padding:11px 20px; border-radius:9px; font-family:'Sora',sans-serif; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; transition:all 0.15s; border:none; width:100%; }
-.btn-primary { background:var(--green); color:var(--bg); }
-.btn-primary:hover { opacity:0.9; }
-.btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
-.btn-secondary { background:var(--surface2); color:var(--muted); border:1px solid var(--border); margin-top:8px; }
-.btn-secondary:hover { color:var(--text); border-color:var(--muted2); }
-.btn-red { background:var(--red-dim); color:var(--red); border:1px solid rgba(255,77,106,0.3); margin-top:8px; }
-
-/* ADMIN PANEL */
-.admin-tabs { display:flex; gap:4px; margin-bottom:20px; }
-.admin-tab {
-  padding:7px 14px; border-radius:7px; font-size:0.68rem; font-weight:700;
-  text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; transition:all 0.15s;
-  background:transparent; border:1px solid var(--border); color:var(--muted);
-}
-.admin-tab.active { background:var(--surface2); color:var(--text); border-color:var(--muted2); }
-.admin-pane { display:none; }
-.admin-pane.active { display:block; }
-
-/* PUNCH LOG TABLE */
-.punch-table { width:100%; border-collapse:collapse; font-size:0.7rem; }
-.punch-table th { text-align:left; padding:8px 10px; color:var(--muted); font-weight:600; letter-spacing:0.08em; text-transform:uppercase; font-size:0.6rem; border-bottom:1px solid var(--border); }
-.punch-table td { padding:8px 10px; border-bottom:1px solid rgba(37,42,58,0.5); }
-.punch-table tr:hover td { background:var(--surface2); }
-.punch-edit-btn {
-  padding:3px 8px; border-radius:4px; border:1px solid var(--border);
-  background:transparent; color:var(--muted); font-size:0.6rem; cursor:pointer;
-}
-.punch-edit-btn:hover { color:var(--text); border-color:var(--muted2); }
-
-/* SETTINGS */
-.settings-field { margin-bottom:16px; }
-.settings-label { font-size:0.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px; }
-.settings-input {
-  width:100%; padding:10px 12px; background:var(--surface2); border:1px solid var(--border);
-  border-radius:8px; color:var(--text); font-family:'Sora',sans-serif; font-size:0.78rem;
-}
-.settings-input:focus { outline:none; border-color:var(--muted2); }
-
-/* PIN PAD */
-.pin-display { display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
-.pin-dot { width:12px; height:12px; border-radius:50%; background:var(--border); transition:background 0.15s; }
-.pin-dot.filled { background:var(--green); }
-.pin-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.pin-key {
-  padding:14px; border-radius:10px; background:var(--surface2); border:1px solid var(--border);
-  color:var(--text); font-family:'Bebas Neue',sans-serif; font-size:1.4rem;
-  cursor:pointer; text-align:center; transition:all 0.1s;
-}
-.pin-key:hover { background:var(--border); }
-.pin-key:active { transform:scale(0.96); }
+/* ADMIN */
+.admin-tabs{display:flex;gap:4px;margin-bottom:18px;}
+.admin-tab{padding:7px 14px;border-radius:7px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;background:transparent;border:1px solid var(--border);color:var(--muted);}
+.admin-tab.active{background:var(--surface2);color:var(--text);border-color:var(--muted2);}
+.admin-pane{display:none;}
+.admin-pane.active{display:block;}
+.punch-table{width:100%;border-collapse:collapse;font-size:0.7rem;}
+.punch-table th{text-align:left;padding:7px 9px;color:var(--muted);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;font-size:0.6rem;border-bottom:1px solid var(--border);}
+.punch-table td{padding:7px 9px;border-bottom:1px solid rgba(37,42,58,0.5);}
+.punch-edit-btn{padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:0.6rem;cursor:pointer;}
+.punch-edit-btn:hover{color:var(--text);}
+.settings-field{margin-bottom:14px;}
+.settings-label{font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;}
+.settings-input{width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Sora',sans-serif;font-size:0.76rem;}
+.settings-input:focus{outline:none;border-color:var(--muted2);}
+.toggle-switch{width:38px;height:20px;border-radius:10px;background:var(--muted2);position:relative;cursor:pointer;transition:background 0.2s;border:none;flex-shrink:0;}
+.toggle-switch.on{background:var(--green);}
+.toggle-switch::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left 0.2s;}
+.toggle-switch.on::after{left:21px;}
+.btn{padding:10px 18px;border-radius:9px;font-family:'Sora',sans-serif;font-size:0.76rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;border:none;width:100%;}
+.btn-primary{background:var(--green);color:var(--bg);}
+.btn-primary:hover{opacity:0.9;}
+.btn-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,106,0.3);margin-top:8px;}
 
 /* TOAST */
-.toast {
-  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
-  background:var(--surface); border:1px solid var(--border); border-radius:10px;
-  padding:10px 18px; font-size:0.75rem; font-weight:600; z-index:9999;
-  opacity:0; transition:all 0.2s; white-space:nowrap;
-}
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-.toast.green { border-color:rgba(0,232,122,0.4); color:var(--green); }
-.toast.red { border-color:rgba(255,77,106,0.4); color:var(--red); }
-
-/* SYNC INDICATOR */
-.sync-dot {
-  width:6px; height:6px; border-radius:50%; background:var(--muted2);
-  display:inline-block; margin-right:5px; transition:background 0.3s;
-}
-.sync-dot.syncing { background:var(--amber); animation:pulse 0.8s infinite; }
-.sync-dot.ok { background:var(--green); }
-.sync-dot.err { background:var(--red); }
-.sync-label { font-size:0.6rem; color:var(--muted); vertical-align:middle; }
-
-/* EDIT PUNCH MODAL */
-.edit-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-
-/* CUSTOM CONFIRM MODAL */
-.confirm-body { font-size:0.82rem; line-height:1.5; margin-bottom:20px; color:var(--text); }
-.confirm-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 18px;font-size:0.76rem;font-weight:600;z-index:9999;opacity:0;transition:all 0.2s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.green{border-color:rgba(0,232,122,0.4);color:var(--green);}
+.toast.red{border-color:rgba(255,77,106,0.4);color:var(--red);}
+.hidden{display:none!important;}
 </style>
 </head>
 <body>
@@ -277,72 +189,88 @@ body { font-family:'Sora',system-ui,-apple-system,sans-serif; background:var(--b
 <div class="header">
   <div class="brand">
     <div class="brand-mark">DS</div>
-    <div>
-      <div class="brand-name">Deadline Signs</div>
-      <div class="brand-sub">Time Clock</div>
-    </div>
+    <div><div class="brand-name">Deadline Signs</div><div class="brand-sub">Time Clock</div></div>
   </div>
   <div class="clock-display">
-    <div class="clock-time" id="clockTime">--:--:--</div>
+    <div class="clock-time" id="clockTime">--:--</div>
     <div class="clock-date" id="clockDate">---</div>
   </div>
-  <div class="header-right">
-    <span><span class="sync-dot" id="syncDot"></span><span class="sync-label" id="syncLabel">Not configured</span></span>
-    <button class="btn-admin" onclick="openAdmin()">⚙ Admin</button>
+  <div class="sync-wrap">
+    <span class="sync-dot" id="syncDot"></span>
+    <span class="sync-label" id="syncLabel">Not configured</span>
   </div>
+  <button class="btn-admin" onclick="openAdmin()">⚙ Admin</button>
 </div>
 
 <div class="main">
-  <div>
+  <div class="left-panel">
     <div class="section-label">Tap your name to punch</div>
-    <div class="employee-grid" id="empGrid"></div>
+    <div class="emp-grid" id="empGrid"></div>
   </div>
-  <div class="log-section">
-    <div class="section-label">Today's activity</div>
-    <div class="log-scroll" id="logScroll"></div>
-  </div>
-</div>
 
-<!-- PUNCH MODAL -->
-<div class="overlay" id="punchOverlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('punchOverlay')">✕</button>
-    <h2 id="punchModalName">Employee</h2>
-    <div class="modal-sub" id="punchModalSub">Select punch type, then confirm with photo</div>
-    <div class="punch-options" id="punchOptions"></div>
-    <div id="camSection">
-      <div class="cam-wrap" id="camWrap">
-        <video id="camVideo" autoplay playsinline muted></video>
-        <canvas id="camCanvas" style="display:none;"></canvas>
-        <div class="cam-countdown" id="camCountdown" style="display:none;"></div>
-        <div class="cam-flash" id="camFlash"></div>
+  <div class="right-panel">
+    <div class="action-panel">
+
+      <!-- IDLE LOG -->
+      <div id="stateIdle" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+        <div class="section-label">Today's activity</div>
+        <div class="log-wrap" id="logScroll"></div>
       </div>
-      <button class="btn btn-primary" id="captureBtn" onclick="startCapture()">📷 Take Photo &amp; Confirm</button>
-    </div>
-    <div id="photoSection" style="display:none;">
-      <div class="photo-preview"><img id="photoPreview" src="" alt=""></div>
-      <button class="btn btn-primary" id="confirmBtn" onclick="confirmPunch()">✓ Confirm Punch</button>
-      <button class="btn btn-secondary" onclick="retakePhoto()">↩ Retake</button>
-    </div>
-    <!-- Shown when camera is unavailable -->
-    <div id="noCamSection" style="display:none;">
-      <div class="cam-unavailable">📷 Camera unavailable — punch will be recorded without photo</div>
-      <button class="btn btn-primary" onclick="confirmPunchNoPhoto()">✓ Confirm Punch</button>
+
+      <!-- ACTION SHEET -->
+      <div id="stateAction" class="hidden" style="display:flex;flex-direction:column;flex:1;">
+        <div class="punch-hdr">
+          <div class="punch-who" id="actionName"></div>
+          <button class="btn-x" onclick="cancelPunch()">✕</button>
+        </div>
+        <div class="action-btns" id="actionBtns"></div>
+      </div>
+
+      <!-- CAMERA -->
+      <div id="stateCam" class="hidden" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+        <div class="punch-hdr" style="flex-shrink:0;">
+          <div class="punch-who" id="camTitle" style="font-size:1.3rem;"></div>
+          <button class="btn-x" onclick="cancelPunch()">✕</button>
+        </div>
+        <div class="cam-wrap-outer">
+          <video id="camVideo" autoplay playsinline></video>
+          <canvas id="camCanvas" style="display:none;"></canvas>
+          <div class="cam-countdown hidden" id="camCountdown"></div>
+          <div class="cam-flash" id="camFlash"></div>
+        </div>
+        <div class="cam-footer">
+          <button class="btn-confirm" onclick="startCapture()">📷 Take Photo &amp; Confirm</button>
+        </div>
+      </div>
+
+      <!-- PHOTO CONFIRM -->
+      <div id="statePhoto" class="hidden" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+        <div class="punch-hdr" style="flex-shrink:0;">
+          <div class="punch-who" id="photoTitle" style="font-size:1.3rem;"></div>
+          <button class="btn-x" onclick="cancelPunch()">✕</button>
+        </div>
+        <div class="photo-prev-wrap">
+          <img id="photoPreview" src="" alt="">
+        </div>
+        <div class="cam-footer">
+          <button class="btn-confirm" onclick="confirmPunch()">✓ Confirm Punch</button>
+          <button class="btn-retake" onclick="retakePhoto()">↩ Retake</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- ADMIN PIN MODAL -->
+<!-- ADMIN PIN -->
 <div class="overlay" id="adminPinOverlay">
-  <div class="modal" style="width:320px;">
+  <div class="modal" style="width:300px;">
     <button class="modal-close" onclick="closeModal('adminPinOverlay')">✕</button>
-    <h2>Admin Access</h2>
-    <div class="modal-sub">Enter your PIN to continue</div>
-    <div class="pin-display" id="pinDisplay">
-      <div class="pin-dot" id="pd0"></div>
-      <div class="pin-dot" id="pd1"></div>
-      <div class="pin-dot" id="pd2"></div>
-      <div class="pin-dot" id="pd3"></div>
+    <h2>Admin</h2>
+    <div class="modal-sub">Enter PIN</div>
+    <div class="pin-display">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
     </div>
     <div class="pin-grid">
       <button class="pin-key" onclick="pinPress('1')">1</button>
@@ -356,9 +284,9 @@ body { font-family:'Sora',system-ui,-apple-system,sans-serif; background:var(--b
       <button class="pin-key" onclick="pinPress('9')">9</button>
       <button class="pin-key" onclick="pinPress('del')" style="font-size:0.9rem;font-family:'Sora',sans-serif;">⌫</button>
       <button class="pin-key" onclick="pinPress('0')">0</button>
-      <button class="pin-key" onclick="pinPress('ok')" style="font-size:0.75rem;font-family:'Sora',sans-serif;letter-spacing:0.05em;">OK</button>
+      <button class="pin-key" onclick="pinPress('ok')" style="font-size:0.75rem;font-family:'Sora',sans-serif;">OK</button>
     </div>
-    <p id="pinError" style="color:var(--red);font-size:0.7rem;text-align:center;margin-top:10px;min-height:18px;"></p>
+    <p id="pinError" style="color:var(--red);font-size:0.7rem;text-align:center;margin-top:10px;min-height:16px;"></p>
   </div>
 </div>
 
@@ -367,19 +295,19 @@ body { font-family:'Sora',system-ui,-apple-system,sans-serif; background:var(--b
   <div class="modal" style="width:640px;">
     <button class="modal-close" onclick="closeModal('adminOverlay')">✕</button>
     <h2>Admin Panel</h2>
-    <div class="modal-sub">Punch log, employees, and settings</div>
+    <div class="modal-sub">Punches, employees, settings</div>
     <div class="admin-tabs">
       <button class="admin-tab active" onclick="switchTab('log')">Punch Log</button>
       <button class="admin-tab" onclick="switchTab('employees')">Employees</button>
       <button class="admin-tab" onclick="switchTab('settings')">Settings</button>
     </div>
     <div class="admin-pane active" id="tab-log">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <span style="font-size:0.7rem;color:var(--muted);">Today's punches</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-size:0.7rem;color:var(--muted);">Today</span>
         <button class="btn-admin" onclick="exportCSV()">↓ Export CSV</button>
       </div>
       <div style="overflow-x:auto;">
-        <table class="punch-table" id="adminPunchTable">
+        <table class="punch-table">
           <thead><tr><th>Employee</th><th>Type</th><th>Time</th><th>Photo</th><th>Sync</th><th></th></tr></thead>
           <tbody id="adminPunchBody"></tbody>
         </table>
@@ -387,11 +315,11 @@ body { font-family:'Sora',system-ui,-apple-system,sans-serif; background:var(--b
     </div>
     <div class="admin-pane" id="tab-employees">
       <div id="empList"></div>
-      <hr style="border-color:var(--border);margin:16px 0;">
+      <hr style="border-color:var(--border);margin:14px 0;">
       <div class="settings-label">Add Employee</div>
-      <div class="edit-row">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:10px;">
         <input class="settings-input" id="newEmpName" placeholder="Name">
-        <button class="btn btn-primary" onclick="addEmployee()">+ Add</button>
+        <button class="btn btn-primary" style="width:auto;padding:9px 18px;" onclick="addEmployee()">+ Add</button>
       </div>
     </div>
     <div class="admin-pane" id="tab-settings">
@@ -401,29 +329,30 @@ body { font-family:'Sora',system-ui,-apple-system,sans-serif; background:var(--b
       </div>
       <div class="settings-field">
         <div class="settings-label">Admin PIN (4 digits)</div>
-        <input class="settings-input" id="newPin" type="password" placeholder="Enter new PIN" maxlength="4">
+        <input class="settings-input" id="newPin" type="password" placeholder="Leave blank to keep current">
       </div>
       <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
     </div>
   </div>
 </div>
 
-<!-- EDIT PUNCH MODAL -->
+<!-- EDIT PUNCH -->
 <div class="overlay" id="editPunchOverlay">
-  <div class="modal" style="width:360px;">
+  <div class="modal" style="width:340px;">
     <button class="modal-close" onclick="closeModal('editPunchOverlay')">✕</button>
     <h2>Edit Punch</h2>
-    <div class="modal-sub" id="editPunchSub"></div>
     <div class="settings-field">
       <div class="settings-label">Employee</div>
       <input class="settings-input" id="editEmp" readonly>
     </div>
     <div class="settings-field">
-      <div class="settings-label">Punch Type</div>
+      <div class="settings-label">Type</div>
       <select class="settings-input" id="editType" style="cursor:pointer;">
         <option value="clock_in">Clock In</option>
         <option value="break_start">Break Start</option>
         <option value="break_end">Break End</option>
+        <option value="install_start">Go on Install</option>
+        <option value="install_end">Back from Install</option>
         <option value="clock_out">Clock Out</option>
       </select>
     </div>
@@ -432,768 +361,377 @@ body { font-family:'Sora',system-ui,-apple-system,sans-serif; background:var(--b
       <input class="settings-input" id="editTime" type="datetime-local">
     </div>
     <button class="btn btn-primary" onclick="saveEditPunch()">Save Changes</button>
-    <button class="btn btn-red" onclick="handleDeletePunch()">Delete Punch</button>
+    <button class="btn btn-red" onclick="deletePunch()">Delete Punch</button>
   </div>
 </div>
 
-<!-- PHOTO LIGHTBOX -->
 <div class="overlay" id="photoLightbox" onclick="closeModal('photoLightbox')">
   <img id="lightboxImg" style="max-width:80vw;max-height:80vh;border-radius:12px;border:1px solid var(--border);">
 </div>
 
-<!-- CUSTOM CONFIRM MODAL -->
-<div class="overlay" id="confirmOverlay">
-  <div class="modal" style="width:340px;">
-    <h2 id="confirmTitle">Confirm</h2>
-    <div class="confirm-body" id="confirmBody"></div>
-    <div class="confirm-actions">
-      <button class="btn btn-secondary" onclick="confirmResolve(false)" style="margin:0;">Cancel</button>
-      <button class="btn btn-red" id="confirmOkBtn" onclick="confirmResolve(true)" style="margin:0;">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════════════
-//  Deadline Signs Time Clock v2 — Kiosk Application
-// ══════════════════════════════════════════════════════════════
+let employees=JSON.parse(localStorage.getItem('tc_employees')||'null')||
+  [{name:'Megan',installEnabled:false},{name:'Carlie',installEnabled:false},{name:'Noah',installEnabled:true}];
+let punches=JSON.parse(localStorage.getItem('tc_punches')||'[]');
+let settings=JSON.parse(localStorage.getItem('tc_settings')||'{"pin":"1234","sheetsUrl":""}');
+let pinBuffer='',activeEmployee=null,selectedType=null,capturedPhoto=null,editingPunchId=null,camStream=null;
 
-// ── HTML ESCAPING ──
-function esc(str) {
-  const d = document.createElement('div');
-  d.textContent = String(str);
-  return d.innerHTML;
+if(employees.length&&typeof employees[0]==='string')
+  employees=employees.map(n=>({name:n,installEnabled:n==='Noah'}));
+
+function tickClock(){
+  const n=new Date();
+  document.getElementById('clockTime').textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('clockDate').textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+setInterval(tickClock,1000);tickClock();
+
+function save(){
+  localStorage.setItem('tc_employees',JSON.stringify(employees));
+  localStorage.setItem('tc_punches',JSON.stringify(punches));
+  localStorage.setItem('tc_settings',JSON.stringify(settings));
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fmtTime(ts){return new Date(ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
+
+function todayPunches(name){
+  const t=new Date().toDateString();
+  return punches.filter(p=>p.emp===name&&new Date(p.ts).toDateString()===t);
 }
 
-// ── SHA-256 HASHING ──
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+function getStatus(name){
+  const tp=todayPunches(name).sort((a,b)=>a.ts-b.ts);
+  if(!tp.length)return'out';
+  const last=tp[tp.length-1].type;
+  if(last==='clock_in'||last==='break_end'||last==='install_end')return'in';
+  if(last==='break_start')return'break';
+  if(last==='install_start')return'install';
+  return'out';
 }
 
-// Default PIN hash: SHA-256("1234")
-const DEFAULT_PIN_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
-
-// ── INDEXEDDB PHOTO STORAGE ──
-const PhotoDB = {
-  DB_NAME: 'tc_photos',
-  STORE: 'photos',
-
-  _open() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open(this.DB_NAME, 1);
-      req.onupgradeneeded = e => {
-        e.target.result.createObjectStore(this.STORE, { keyPath: 'id' });
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  },
-
-  async save(id, base64) {
-    try {
-      const db = await this._open();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(this.STORE, 'readwrite');
-        tx.objectStore(this.STORE).put({ id, photo: base64, ts: Date.now() });
-        tx.oncomplete = () => { db.close(); resolve(true); };
-        tx.onerror = () => { db.close(); reject(tx.error); };
-      });
-    } catch (e) { console.error('PhotoDB.save:', e); return false; }
-  },
-
-  async get(id) {
-    try {
-      const db = await this._open();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(this.STORE, 'readonly');
-        const req = tx.objectStore(this.STORE).get(id);
-        req.onsuccess = () => { db.close(); resolve(req.result?.photo || null); };
-        req.onerror = () => { db.close(); reject(req.error); };
-      });
-    } catch (e) { console.error('PhotoDB.get:', e); return null; }
-  },
-
-  async delete(id) {
-    try {
-      const db = await this._open();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(this.STORE, 'readwrite');
-        tx.objectStore(this.STORE).delete(id);
-        tx.oncomplete = () => { db.close(); resolve(true); };
-        tx.onerror = () => { db.close(); reject(tx.error); };
-      });
-    } catch (e) { console.error('PhotoDB.delete:', e); return false; }
-  },
-
-  async cleanup(maxAgeDays = 30) {
-    try {
-      const db = await this._open();
-      const cutoff = Date.now() - (maxAgeDays * 86400000);
-      const tx = db.transaction(this.STORE, 'readwrite');
-      const store = tx.objectStore(this.STORE);
-      const req = store.openCursor();
-      req.onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          if (cursor.value.ts && cursor.value.ts < cutoff) cursor.delete();
-          cursor.continue();
-        }
-      };
-      tx.oncomplete = () => db.close();
-    } catch (e) { console.error('PhotoDB.cleanup:', e); }
+function totalHourly(name){
+  const tp=todayPunches(name).sort((a,b)=>a.ts-b.ts);
+  let total=0,ci=null;
+  for(const p of tp){
+    if(p.type==='clock_in'||p.type==='break_end'||p.type==='install_end')ci=p.ts;
+    if((p.type==='clock_out'||p.type==='break_start'||p.type==='install_start')&&ci){total+=p.ts-ci;ci=null;}
   }
-};
+  if(ci)total+=Date.now()-ci;
+  const h=Math.floor(total/3600000),m=Math.floor((total%3600000)/60000);
+  return h?`${h}h ${m}m`:`${m}m`;
+}
 
-// ── CUSTOM CONFIRM DIALOG ──
-let confirmResolveFn = null;
+function punchLabel(t){
+  return{clock_in:'Clocked In',clock_out:'Clocked Out',break_start:'Break',break_end:'Back from Break',
+    install_start:'On Install',install_end:'Back from Install'}[t]||t;
+}
+function typeColor(t){
+  if(t==='clock_in'||t==='break_end'||t==='install_end')return'var(--green)';
+  if(t==='clock_out')return'var(--red)';
+  if(t==='break_start')return'var(--amber)';
+  if(t==='install_start')return'var(--blue)';
+  return'var(--muted)';
+}
 
-function customConfirm(title, message) {
-  return new Promise(resolve => {
-    confirmResolveFn = resolve;
-    document.getElementById('confirmTitle').textContent = title;
-    document.getElementById('confirmBody').textContent = message;
-    openModal('confirmOverlay');
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast show ${type}`;
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function showState(name){
+  const states=['stateIdle','stateAction','stateCam','statePhoto'];
+  states.forEach(id=>{
+    const el=document.getElementById(id);
+    if(id===name){el.classList.remove('hidden');el.style.display='flex';}
+    else{el.classList.add('hidden');el.style.display='none';}
   });
 }
 
-function confirmResolve(val) {
-  closeModal('confirmOverlay');
-  if (confirmResolveFn) { confirmResolveFn(val); confirmResolveFn = null; }
-}
-
-// ── STATE ──
-// Punches stored WITHOUT photo data — photos go to IndexedDB
-let employees = [];
-let punches   = [];    // { id, emp, type, ts, hasPhoto, synced }
-let settings  = {};    // { pinHash, sheetsUrl }
-
-function loadState() {
-  try {
-    employees = JSON.parse(localStorage.getItem('tc_employees') || 'null') || ['Megan','Carlie','Noah'];
-    punches = JSON.parse(localStorage.getItem('tc_punches') || 'null') || [];
-    settings = JSON.parse(localStorage.getItem('tc_settings') || 'null') || {
-      pinHash: DEFAULT_PIN_HASH,
-      sheetsUrl: ''
-    };
-    // Migrate: if settings has old plaintext 'pin' field, hash it
-    if (settings.pin && !settings.pinHash) {
-      // Can't await here, so set a flag and hash on first admin access
-      settings._needsHashMigration = true;
-      settings._plainPin = settings.pin;
-      delete settings.pin;
-    }
-    // Strip photo data from punches that still have it (migration from v1)
-    let migrated = false;
-    punches.forEach(p => {
-      if (p.photo) {
-        // Save to IndexedDB in background
-        PhotoDB.save(p.id, p.photo);
-        p.hasPhoto = true;
-        delete p.photo;
-        migrated = true;
-      }
-    });
-    if (migrated) save();
-  } catch (e) {
-    console.error('loadState failed:', e);
-    employees = ['Megan','Carlie','Noah'];
-    punches = [];
-    settings = { pinHash: DEFAULT_PIN_HASH, sheetsUrl: '' };
-  }
-}
-
-function save() {
-  try {
-    localStorage.setItem('tc_employees', JSON.stringify(employees));
-    localStorage.setItem('tc_punches', JSON.stringify(punches));
-    localStorage.setItem('tc_settings', JSON.stringify(settings));
-  } catch (e) {
-    console.error('save() failed:', e);
-    showToast('Storage full — clear old data in Admin', 'red');
-  }
-}
-
-loadState();
-
-let activeEmployee = null;
-let selectedType   = null;
-let capturedPhoto  = null;
-let editingPunchId = null;
-let pinBuffer      = '';
-let camStream      = null;
-let cameraAvailable = true;
-
-// ── CLOCK ──
-function tickClock() {
-  const now = new Date();
-  document.getElementById('clockTime').textContent =
-    now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  document.getElementById('clockDate').textContent =
-    now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-}
-setInterval(tickClock, 1000);
-tickClock();
-
-// ── HELPERS ──
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-
-function fmtTime(ts) {
-  return new Date(ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-}
-
-function todayPunches(emp) {
-  const today = new Date().toDateString();
-  return punches.filter(p => p.emp === emp && new Date(p.ts).toDateString() === today);
-}
-
-function getStatus(emp) {
-  const tp = todayPunches(emp).sort((a,b) => a.ts - b.ts);
-  if (!tp.length) return 'out';
-  const last = tp[tp.length - 1].type;
-  if (last === 'clock_in' || last === 'break_end') return 'in';
-  if (last === 'break_start') return 'break';
-  return 'out';
-}
-
-function totalToday(emp) {
-  const tp = todayPunches(emp).sort((a,b) => a.ts - b.ts);
-  let total = 0, clockIn = null;
-  for (const p of tp) {
-    if (p.type === 'clock_in' || p.type === 'break_end') clockIn = p.ts;
-    if ((p.type === 'clock_out' || p.type === 'break_start') && clockIn) {
-      total += p.ts - clockIn; clockIn = null;
-    }
-  }
-  if (clockIn) total += Date.now() - clockIn;
-  const h = Math.floor(total / 3600000), m = Math.floor((total % 3600000) / 60000);
-  return h ? `${h}h ${m}m` : `${m}m`;
-}
-
-function punchLabel(type) {
-  return { clock_in:'Clocked In', clock_out:'Clocked Out', break_start:'Break', break_end:'Back from Break' }[type] || type;
-}
-
-function typeColor(type) {
-  return { clock_in:'var(--green)', clock_out:'var(--red)', break_start:'var(--amber)', break_end:'var(--blue)' }[type] || 'var(--muted)';
-}
-
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast show ${type}`;
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ── RENDER ──
-function renderGrid() {
-  const grid = document.getElementById('empGrid');
-  let html = '';
-  employees.forEach(emp => {
-    const status = getStatus(emp);
-    const initials = emp.substring(0, 2).toUpperCase();
-    const tp = todayPunches(emp).sort((a,b) => a.ts - b.ts);
-    const lastP = tp[tp.length - 1];
-    const total = totalToday(emp);
-
-    let badgeHtml = '';
-    if (status === 'in')         badgeHtml = `<span class="emp-status-badge badge-in"><span class="dot pulse"></span>Clocked In</span>`;
-    else if (status === 'break') badgeHtml = `<span class="emp-status-badge badge-break"><span class="dot pulse"></span>On Break</span>`;
-    else                         badgeHtml = `<span class="emp-status-badge badge-out"><span class="dot"></span>Off Clock</span>`;
-
-    let actionLabel = 'Clock In';
-    if (status === 'in')    actionLabel = 'Clock Out / Break';
-    if (status === 'break') actionLabel = 'End Break / Clock Out';
-
-    const avatarClass = status === 'in' ? 'green' : status === 'break' ? 'amber' : '';
-
-    html += `
-      <div class="emp-card status-${esc(status)}" onclick="openPunch('${esc(emp)}')">
-        <div class="emp-avatar ${avatarClass}">${esc(initials)}</div>
-        <div class="emp-name">${esc(emp)}</div>
-        ${badgeHtml}
-        ${lastP ? `<div class="emp-time">Last: ${esc(punchLabel(lastP.type))} at ${esc(fmtTime(lastP.ts))}</div>` : ''}
-        ${tp.length ? `<div class="emp-today">Today: ${esc(total)}</div>` : ''}
-        <div class="emp-action">${esc(actionLabel)}</div>
-      </div>`;
-  });
-  grid.innerHTML = html;
-}
-
-function renderLog() {
-  const today = new Date().toDateString();
-  const todayAll = punches
-    .filter(p => new Date(p.ts).toDateString() === today)
-    .sort((a,b) => b.ts - a.ts)
-    .slice(0, 30);
-
-  const scroll = document.getElementById('logScroll');
-  if (!todayAll.length) {
-    scroll.innerHTML = '<div style="color:var(--muted);font-size:0.72rem;padding:12px 0;">No punches yet today.</div>';
-    return;
-  }
-  scroll.innerHTML = todayAll.map(p => `
-    <div class="log-entry">
-      <div class="log-type-dot" style="background:${typeColor(p.type)};"></div>
-      <div><span class="log-name">${esc(p.emp)}</span> <span class="log-type">${esc(punchLabel(p.type))}</span></div>
-      <div class="log-time">${esc(fmtTime(p.ts))}</div>
-      ${p.hasPhoto ? `<img class="log-photo-thumb" src="" data-punch-id="${esc(p.id)}" onclick="openLightbox('${esc(p.id)}')" title="View photo">` : '<div style="width:24px;"></div>'}
-    </div>`).join('');
-
-  // Lazy-load photo thumbnails from IndexedDB
-  todayAll.filter(p => p.hasPhoto).forEach(p => {
-    PhotoDB.get(p.id).then(photo => {
-      if (photo) {
-        const img = scroll.querySelector(`[data-punch-id="${CSS.escape(p.id)}"]`);
-        if (img) img.src = photo;
-      }
-    });
+function renderGrid(){
+  const g=document.getElementById('empGrid');g.innerHTML='';
+  employees.forEach(emp=>{
+    const s=getStatus(emp.name),init=emp.name.substring(0,2).toUpperCase();
+    const tp=todayPunches(emp.name).sort((a,b)=>a.ts-b.ts);
+    const lastP=tp[tp.length-1],total=tp.length?totalHourly(emp.name):'';
+    let badge='';
+    if(s==='in')badge=`<span class="emp-badge badge-in"><span class="dot pulse"></span>Clocked In</span>`;
+    else if(s==='break')badge=`<span class="emp-badge badge-break"><span class="dot pulse"></span>On Break</span>`;
+    else if(s==='install')badge=`<span class="emp-badge badge-install"><span class="dot pulse"></span>On Install</span>`;
+    else badge=`<span class="emp-badge badge-out"><span class="dot"></span>Off Clock</span>`;
+    let tap='Clock In';
+    if(s==='in')tap='Punch';
+    if(s==='break')tap='End Break';
+    if(s==='install')tap='Back / Clock Out';
+    const av=lastP?.photo?`<img src="${lastP.photo}" alt="">`:`<span>${init}</span>`;
+    g.innerHTML+=`<div class="emp-card status-${s}" onclick="openPunch('${emp.name}')">
+      <div class="emp-card-bar"></div>
+      <div class="emp-avatar">${av}</div>
+      <div class="emp-name">${emp.name}</div>
+      ${badge}
+      ${total?`<div class="emp-time">${total} today</div>`:''}
+      <div class="emp-tap">${tap}</div>
+    </div>`;
   });
 }
 
-function render() { renderGrid(); renderLog(); }
+function renderLog(){
+  const today=new Date().toDateString();
+  const rows=punches.filter(p=>new Date(p.ts).toDateString()===today).sort((a,b)=>b.ts-a.ts).slice(0,40);
+  const s=document.getElementById('logScroll');
+  if(!rows.length){s.innerHTML=`<div style="color:var(--muted);font-size:0.72rem;padding:12px;">No punches today.</div>`;return;}
+  s.innerHTML=rows.map(p=>`<div class="log-entry">
+    <div class="log-dot" style="background:${typeColor(p.type)};"></div>
+    <div><span class="log-name">${p.emp}</span><span class="log-type">${punchLabel(p.type)}</span></div>
+    <div class="log-time">${fmtTime(p.ts)}</div>
+    ${p.photo?`<img class="log-photo" src="${p.photo}" onclick="openLightbox('${p.id}')">`:''}
+  </div>`).join('');
+}
 
-// ── PUNCH FLOW ──
-function openPunch(emp) {
-  activeEmployee = emp;
-  const status = getStatus(emp);
-  document.getElementById('punchModalName').textContent = emp;
+function render(){renderGrid();renderLog();}
 
-  const opts = document.getElementById('punchOptions');
-  opts.innerHTML = '';
-  selectedType = null;
-
-  const available = [];
-  if (status === 'out')   available.push({ type:'clock_in', label:'▶ Clock In' });
-  if (status === 'in')    available.push({ type:'break_start', label:'⏸ Start Break' }, { type:'clock_out', label:'■ Clock Out' });
-  if (status === 'break') available.push({ type:'break_end', label:'▶ End Break' }, { type:'clock_out', label:'■ Clock Out' });
-
-  available.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = `punch-btn ${opt.type}`;
-    btn.textContent = opt.label;
-    btn.onclick = () => {
-      opts.querySelectorAll('.punch-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedType = opt.type;
-    };
-    opts.appendChild(btn);
+function openPunch(name){
+  activeEmployee=name;selectedType=null;
+  const emp=employees.find(e=>e.name===name);
+  const s=getStatus(name);
+  document.getElementById('actionName').textContent=name;
+  const btns=document.getElementById('actionBtns');btns.innerHTML='';
+  const opts=[];
+  if(s==='out') opts.push({type:'clock_in',label:'Clock In',sub:'Start hourly tracking',cls:'abtn-in'});
+  if(s==='in')  opts.push({type:'break_start',label:'Start Break',sub:'Pauses hourly clock',cls:'abtn-break'});
+  if(s==='in'&&emp?.installEnabled) opts.push({type:'install_start',label:'Go on Install',sub:'Flat fee \u2014 not tracked hourly',cls:'abtn-install'});
+  if(s==='in')  opts.push({type:'clock_out',label:'Clock Out',sub:'End shift',cls:'abtn-out'});
+  if(s==='break') opts.push({type:'break_end',label:'End Break',sub:'Resume hourly',cls:'abtn-in'});
+  if(s==='break') opts.push({type:'clock_out',label:'Clock Out',sub:'End shift',cls:'abtn-out'});
+  if(s==='install') opts.push({type:'install_end',label:'Back from Install',sub:'Resume hourly tracking',cls:'abtn-in'});
+  if(s==='install') opts.push({type:'clock_out',label:'Clock Out',sub:'End shift',cls:'abtn-out'});
+  opts.forEach(o=>{
+    const el=document.createElement('div');
+    el.className=`abtn ${o.cls}`;
+    el.innerHTML=`<div class="abtn-icon">${getIcon(o.type)}</div><div><span class="abtn-title">${o.label}</span><span class="abtn-sub">${o.sub}</span></div>`;
+    el.onclick=()=>{selectedType=o.type;openCamera();};
+    btns.appendChild(el);
   });
-
-  if (available.length === 1) {
-    opts.querySelector('.punch-btn').click();
-  }
-
-  // Reset camera sections (non-destructive)
-  document.getElementById('camSection').style.display = 'block';
-  document.getElementById('photoSection').style.display = 'none';
-  document.getElementById('noCamSection').style.display = 'none';
-  capturedPhoto = null;
-
-  openModal('punchOverlay');
-  startCamera();
+  showState('stateAction');
 }
 
-function startCamera() {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:640, height:480 } })
-    .then(stream => {
-      camStream = stream;
-      cameraAvailable = true;
-      document.getElementById('camVideo').srcObject = stream;
-    })
-    .catch(() => {
-      cameraAvailable = false;
-      document.getElementById('camSection').style.display = 'none';
-      document.getElementById('noCamSection').style.display = 'block';
-    });
-}
-
-function stopCamera() {
-  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
-}
-
-function startCapture() {
-  if (!selectedType) { showToast('Select a punch type first', 'red'); return; }
-  let count = 3;
-  const cd = document.getElementById('camCountdown');
-  cd.style.display = 'flex';
-  cd.textContent = count;
-  const iv = setInterval(() => {
-    count--;
-    if (count > 0) { cd.textContent = count; }
-    else {
-      clearInterval(iv);
-      cd.style.display = 'none';
-      takeSnapshot();
-    }
-  }, 1000);
-}
-
-function takeSnapshot() {
-  const v = document.getElementById('camVideo');
-  const c = document.getElementById('camCanvas');
-  c.width = v.videoWidth || 640;
-  c.height = v.videoHeight || 480;
-  c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-  capturedPhoto = c.toDataURL('image/jpeg', 0.6);
-
-  // Flash
-  const flash = document.getElementById('camFlash');
-  flash.classList.add('flash');
-  setTimeout(() => flash.classList.remove('flash'), 150);
-
-  // Show preview
-  document.getElementById('photoPreview').src = capturedPhoto;
-  document.getElementById('camSection').style.display = 'none';
-  document.getElementById('photoSection').style.display = 'block';
-  stopCamera();
-}
-
-function retakePhoto() {
-  document.getElementById('camSection').style.display = 'block';
-  document.getElementById('photoSection').style.display = 'none';
-  capturedPhoto = null;
-  startCamera();
-}
-
-function confirmPunchNoPhoto() {
-  capturedPhoto = null;
-  if (!selectedType) { showToast('Select a punch type first', 'red'); return; }
-  recordPunch();
-}
-
-function confirmPunch() {
-  if (!selectedType) { showToast('Select a punch type first', 'red'); return; }
-  recordPunch();
-}
-
-async function recordPunch() {
-  const punchId = uid();
-  const punch = {
-    id: punchId,
-    emp: activeEmployee,
-    type: selectedType,
-    ts: Date.now(),
-    hasPhoto: !!capturedPhoto,
-    synced: false
+function getIcon(t){
+  const i={
+    clock_in:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+    clock_out:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`,
+    break_start:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`,
+    break_end:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+    install_start:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="8" rx="2"/><path d="M5 10V7a2 2 0 012-2h10a2 2 0 012 2v3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
+    install_end:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
   };
-
-  // Save photo to IndexedDB (not localStorage)
-  if (capturedPhoto) {
-    await PhotoDB.save(punchId, capturedPhoto);
-  }
-
-  punches.push(punch);
-  save();
-  closeModal('punchOverlay');
-  stopCamera();
-  render();
-  showToast(`${activeEmployee} — ${punchLabel(selectedType)}`, 'green');
-  syncPunch(punch, capturedPhoto);
-  capturedPhoto = null;
+  return i[t]||i.clock_in;
 }
 
-// ── SYNC ──
-async function syncPunch(punch, photoBase64) {
-  if (!settings.sheetsUrl) { updateSyncUI('err', 'No Sheets URL'); return; }
-  updateSyncUI('syncing', 'Syncing...');
-  try {
-    const payload = {
-      id: punch.id,
-      employee: punch.emp,
-      type: punch.type,
-      typeLabel: punchLabel(punch.type),
-      readableTime: new Date(punch.ts).toLocaleString(),
-      timestamp: new Date(punch.ts).toISOString()
-    };
-
-    // Include photo for Drive upload if available
-    if (photoBase64) {
-      payload.photo = photoBase64;
-    } else if (punch.hasPhoto) {
-      // Try to get from IndexedDB
-      const photo = await PhotoDB.get(punch.id);
-      if (photo) payload.photo = photo;
-    }
-
-    const res = await fetch(settings.sheetsUrl, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.success) {
-      punch.synced = true;
-      save();
-      updateSyncUI('ok', 'Synced');
-    } else {
-      throw new Error(data.error || 'Unknown sync error');
-    }
-  } catch (e) {
-    console.error('Sync failed:', e);
-    updateSyncUI('err', 'Sync failed');
-  }
+function openCamera(){
+  document.getElementById('camTitle').textContent=`${activeEmployee} \u2014 ${punchLabel(selectedType)}`;
+  showState('stateCam');startCamera();
 }
 
-function retryPending() {
-  const unsynced = punches.filter(p => !p.synced);
-  unsynced.forEach(p => syncPunch(p, null));
+function startCamera(){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:1280,height:720}})
+    .then(stream=>{camStream=stream;document.getElementById('camVideo').srcObject=stream;})
+    .catch(()=>confirmPunchNoPhoto());
 }
 
-function updateSyncUI(state, label) {
-  document.getElementById('syncDot').className = `sync-dot ${state}`;
-  document.getElementById('syncLabel').textContent = label;
+function stopCamera(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}}
+
+function startCapture(){
+  let count=3;
+  const cd=document.getElementById('camCountdown');
+  cd.classList.remove('hidden');cd.textContent=count;
+  const iv=setInterval(()=>{
+    count--;
+    if(count>0){cd.textContent=count;}
+    else{clearInterval(iv);cd.classList.add('hidden');takeSnapshot();}
+  },1000);
 }
 
-// ── ADMIN ──
-function openAdmin() {
-  openModal('adminPinOverlay');
-  pinBuffer = '';
+function takeSnapshot(){
+  const v=document.getElementById('camVideo'),c=document.getElementById('camCanvas');
+  c.width=v.videoWidth||640;c.height=v.videoHeight||480;
+  c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+  capturedPhoto=c.toDataURL('image/jpeg',0.7);
+  const f=document.getElementById('camFlash');f.classList.add('flash');setTimeout(()=>f.classList.remove('flash'),150);
+  document.getElementById('photoPreview').src=capturedPhoto;
+  document.getElementById('photoTitle').textContent=`${activeEmployee} \u2014 ${punchLabel(selectedType)}`;
+  showState('statePhoto');stopCamera();
+}
+
+function retakePhoto(){capturedPhoto=null;showState('stateCam');startCamera();}
+function confirmPunchNoPhoto(){capturedPhoto=null;recordPunch();}
+function confirmPunch(){recordPunch();}
+
+function recordPunch(){
+  const p={id:uid(),emp:activeEmployee,type:selectedType,ts:Date.now(),photo:capturedPhoto,synced:false};
+  punches.push(p);save();showState('stateIdle');stopCamera();render();
+  showToast(`${activeEmployee} \u2014 ${punchLabel(selectedType)}`,'green');
+  syncPunch(p);
+}
+
+function cancelPunch(){stopCamera();selectedType=activeEmployee=capturedPhoto=null;showState('stateIdle');}
+
+async function syncPunch(p){
+  if(!settings.sheetsUrl){updateSyncUI('err','No URL');return;}
+  updateSyncUI('syncing','Syncing\u2026');
+  try{
+    const res=await fetch(settings.sheetsUrl,{method:'POST',body:JSON.stringify({
+      id:p.id,employee:p.emp,type:p.type,typeLabel:punchLabel(p.type),
+      readableTime:new Date(p.ts).toLocaleString(),
+      timestamp:new Date(p.ts).toISOString(),photoTaken:p.photo?'Yes':'No'
+    })});
+    const d=await res.json();
+    if(d.success){p.synced=true;save();updateSyncUI('ok','Synced');}
+    else throw new Error(d.error);
+  }catch(e){updateSyncUI('err','Sync failed');}
+}
+
+function updateSyncUI(s,l){
+  document.getElementById('syncDot').className=`sync-dot ${s}`;
+  document.getElementById('syncLabel').textContent=l;
+}
+
+function openAdmin(){openModal('adminPinOverlay');pinBuffer='';updatePinDisplay();}
+
+function pinPress(k){
+  if(k==='del'){pinBuffer=pinBuffer.slice(0,-1);}
+  else if(k==='ok'){checkPin();return;}
+  else{if(pinBuffer.length<4)pinBuffer+=k;}
   updatePinDisplay();
+  if(pinBuffer.length===4)setTimeout(checkPin,100);
 }
 
-function pinPress(key) {
-  if (key === 'del') {
-    pinBuffer = pinBuffer.slice(0, -1);
-  } else if (key === 'ok') {
-    checkPin();
-    return;
-  } else {
-    if (pinBuffer.length < 4) pinBuffer += key;
-    if (pinBuffer.length === 4) setTimeout(() => checkPin(), 100);
-  }
-  updatePinDisplay();
+function checkPin(){
+  if(pinBuffer===settings.pin){closeModal('adminPinOverlay');pinBuffer='';updatePinDisplay();openAdminPanel();}
+  else{document.getElementById('pinError').textContent='Incorrect PIN';pinBuffer='';updatePinDisplay();}
 }
 
-async function checkPin() {
-  // Handle migration from plaintext PIN
-  if (settings._needsHashMigration && settings._plainPin) {
-    if (pinBuffer === settings._plainPin) {
-      settings.pinHash = await sha256(settings._plainPin);
-      delete settings._needsHashMigration;
-      delete settings._plainPin;
-      save();
-      closeModal('adminPinOverlay');
-      pinBuffer = '';
-      updatePinDisplay();
-      openAdminPanel();
-      return;
-    }
-  }
-
-  const hash = await sha256(pinBuffer);
-  if (hash === (settings.pinHash || DEFAULT_PIN_HASH)) {
-    closeModal('adminPinOverlay');
-    pinBuffer = '';
-    updatePinDisplay();
-    openAdminPanel();
-  } else {
-    document.getElementById('pinError').textContent = 'Incorrect PIN';
-    pinBuffer = '';
-    updatePinDisplay();
-  }
+function updatePinDisplay(){
+  for(let i=0;i<4;i++)document.getElementById(`pd${i}`).classList.toggle('filled',i<pinBuffer.length);
+  if(!pinBuffer.length)document.getElementById('pinError').textContent='';
 }
 
-function updatePinDisplay() {
-  for (let i = 0; i < 4; i++) {
-    document.getElementById(`pd${i}`).classList.toggle('filled', i < pinBuffer.length);
-  }
-  if (!pinBuffer.length) document.getElementById('pinError').textContent = '';
-}
-
-function openAdminPanel() {
-  renderAdminLog();
-  renderAdminEmployees();
-  document.getElementById('sheetsUrl').value = settings.sheetsUrl || '';
-  document.getElementById('newPin').value = '';
+function openAdminPanel(){
+  renderAdminLog();renderAdminEmployees();
+  document.getElementById('sheetsUrl').value=settings.sheetsUrl||'';
+  document.getElementById('newPin').value='';
   openModal('adminOverlay');
 }
 
-function switchTab(name) {
-  document.querySelectorAll('.admin-tab').forEach((t, i) => {
-    const tabs = ['log', 'employees', 'settings'];
-    t.classList.toggle('active', tabs[i] === name);
-  });
-  document.querySelectorAll('.admin-pane').forEach(p => {
-    p.classList.toggle('active', p.id === `tab-${name}`);
-  });
-  if (name === 'log') renderAdminLog();
-  if (name === 'employees') renderAdminEmployees();
+function switchTab(n){
+  const tabs=['log','employees','settings'];
+  document.querySelectorAll('.admin-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===n));
+  document.querySelectorAll('.admin-pane').forEach(p=>p.classList.toggle('active',p.id===`tab-${n}`));
+  if(n==='log')renderAdminLog();
+  if(n==='employees')renderAdminEmployees();
 }
 
-function renderAdminLog() {
-  const today = new Date().toDateString();
-  const rows = punches
-    .filter(p => new Date(p.ts).toDateString() === today)
-    .sort((a,b) => b.ts - a.ts);
-  const tbody = document.getElementById('adminPunchBody');
-  tbody.innerHTML = rows.map(p => `
-    <tr>
-      <td>${esc(p.emp)}</td>
-      <td style="color:${typeColor(p.type)}">${esc(punchLabel(p.type))}</td>
-      <td>${esc(fmtTime(p.ts))}</td>
-      <td>${p.hasPhoto ? `<span style="color:var(--green);font-size:0.65rem;">📷</span>` : '—'}</td>
-      <td style="color:${p.synced ? 'var(--green)' : 'var(--amber)'}">${p.synced ? '✓' : 'Pending'}</td>
-      <td><button class="punch-edit-btn" onclick="openEditPunch('${esc(p.id)}')">Edit</button></td>
-    </tr>`).join('');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);padding:16px;">No punches today</td></tr>';
-  }
+function renderAdminLog(){
+  const today=new Date().toDateString();
+  const rows=punches.filter(p=>new Date(p.ts).toDateString()===today).sort((a,b)=>b.ts-a.ts);
+  const tb=document.getElementById('adminPunchBody');
+  tb.innerHTML=rows.map(p=>`<tr>
+    <td>${p.emp}</td>
+    <td style="color:${typeColor(p.type)}">${punchLabel(p.type)}</td>
+    <td>${fmtTime(p.ts)}</td>
+    <td>${p.photo?`<img style="width:24px;height:24px;border-radius:4px;object-fit:cover;cursor:pointer;border:1px solid var(--border);" src="${p.photo}" onclick="openLightbox('${p.id}')">`:'—'}</td>
+    <td style="color:${p.synced?'var(--green)':'var(--amber)'}">${p.synced?'✓':'Pending'}</td>
+    <td><button class="punch-edit-btn" onclick="openEditPunch('${p.id}')">Edit</button></td>
+  </tr>`).join('');
+  if(!rows.length)tb.innerHTML='<tr><td colspan="6" style="color:var(--muted);padding:14px;">No punches today</td></tr>';
 }
 
-function renderAdminEmployees() {
-  const list = document.getElementById('empList');
-  list.innerHTML = employees.map((e, i) => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface2);border-radius:8px;margin-bottom:6px;">
-      <span style="font-weight:600;">${esc(e)}</span>
-      <button class="punch-edit-btn" style="color:var(--red);" onclick="handleRemoveEmployee(${i})">Remove</button>
+function renderAdminEmployees(){
+  document.getElementById('empList').innerHTML=employees.map((e,i)=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface2);border-radius:9px;margin-bottom:7px;gap:12px;">
+      <span style="font-weight:700;font-size:0.88rem;">${e.name}</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:0.68rem;color:var(--muted);">Install punch</span>
+        <button class="toggle-switch ${e.installEnabled?'on':''}" onclick="toggleInstall(${i})"></button>
+        <button class="punch-edit-btn" style="color:var(--red);" onclick="removeEmployee(${i})">Remove</button>
+      </div>
     </div>`).join('');
 }
 
-function addEmployee() {
-  const input = document.getElementById('newEmpName');
-  const name = input.value.trim();
-  if (!name) return;
-  if (employees.includes(name)) { showToast('Employee already exists', 'red'); return; }
-  employees.push(name);
-  save();
-  input.value = '';
-  renderAdminEmployees();
-  render();
-  showToast(`${name} added`, 'green');
+function toggleInstall(i){employees[i].installEnabled=!employees[i].installEnabled;save();renderAdminEmployees();render();}
+
+function addEmployee(){
+  const n=document.getElementById('newEmpName').value.trim();if(!n)return;
+  employees.push({name:n,installEnabled:false});save();
+  document.getElementById('newEmpName').value='';
+  renderAdminEmployees();render();showToast(`${n} added`,'green');
 }
 
-async function handleRemoveEmployee(i) {
-  const ok = await customConfirm('Remove Employee', `Remove ${employees[i]} from the time clock?`);
-  if (!ok) return;
-  employees.splice(i, 1);
-  save();
-  renderAdminEmployees();
-  render();
+function removeEmployee(i){
+  if(!confirm(`Remove ${employees[i].name}?`))return;
+  employees.splice(i,1);save();renderAdminEmployees();render();
 }
 
-async function saveSettings() {
-  settings.sheetsUrl = document.getElementById('sheetsUrl').value.trim();
-  const np = document.getElementById('newPin').value.trim();
-  if (np) {
-    if (np.length === 4 && /^\d+$/.test(np)) {
-      settings.pinHash = await sha256(np);
-      delete settings._needsHashMigration;
-      delete settings._plainPin;
-    } else {
-      showToast('PIN must be exactly 4 digits', 'red');
-      return;
-    }
-  }
-  save();
-  showToast('Settings saved', 'green');
-  if (settings.sheetsUrl) {
-    updateSyncUI('ok', 'Configured');
-    retryPending();
-  }
+function saveSettings(){
+  settings.sheetsUrl=document.getElementById('sheetsUrl').value.trim();
+  const np=document.getElementById('newPin').value.trim();
+  if(np&&np.length===4&&/^\d+$/.test(np))settings.pin=np;
+  save();showToast('Settings saved','green');
+  if(settings.sheetsUrl)updateSyncUI('ok','Configured');
 }
 
-// ── EDIT PUNCH ──
-function openEditPunch(id) {
-  editingPunchId = id;
-  const p = punches.find(x => x.id === id);
-  if (!p) return;
-  document.getElementById('editEmp').value = p.emp;
-  document.getElementById('editType').value = p.type;
-  const d = new Date(p.ts);
-  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  document.getElementById('editTime').value = local;
-  document.getElementById('editPunchSub').textContent = `Editing punch ID: ${id}`;
+function openEditPunch(id){
+  editingPunchId=id;const p=punches.find(x=>x.id===id);if(!p)return;
+  document.getElementById('editEmp').value=p.emp;
+  document.getElementById('editType').value=p.type;
+  const d=new Date(p.ts);
+  document.getElementById('editTime').value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
   openModal('editPunchOverlay');
 }
 
-function saveEditPunch() {
-  const p = punches.find(x => x.id === editingPunchId);
-  if (!p) return;
-  p.type = document.getElementById('editType').value;
-  p.ts = new Date(document.getElementById('editTime').value).getTime();
-  p.synced = false;
-  save();
-  closeModal('editPunchOverlay');
-  renderAdminLog();
-  render();
-  showToast('Punch updated', 'green');
-  syncPunch(p, null);
+function saveEditPunch(){
+  const p=punches.find(x=>x.id===editingPunchId);if(!p)return;
+  p.type=document.getElementById('editType').value;
+  p.ts=new Date(document.getElementById('editTime').value).getTime();
+  p.synced=false;save();closeModal('editPunchOverlay');renderAdminLog();render();
+  showToast('Punch updated','green');
 }
 
-async function handleDeletePunch() {
-  const ok = await customConfirm('Delete Punch', 'This action cannot be undone. Delete this punch?');
-  if (!ok) return;
-  // Delete photo from IndexedDB too
-  const p = punches.find(x => x.id === editingPunchId);
-  if (p && p.hasPhoto) PhotoDB.delete(p.id);
-  punches = punches.filter(x => x.id !== editingPunchId);
-  save();
-  closeModal('editPunchOverlay');
-  renderAdminLog();
-  render();
+function deletePunch(){
+  if(!confirm('Delete this punch?'))return;
+  punches=punches.filter(x=>x.id!==editingPunchId);
+  save();closeModal('editPunchOverlay');renderAdminLog();render();
   showToast('Punch deleted');
 }
 
-// ── CSV EXPORT ──
-function exportCSV() {
-  const rows = [['ID', 'Employee', 'Type', 'Time', 'Timestamp', 'Photo Taken', 'Synced']];
-  [...punches].sort((a,b) => a.ts - b.ts).forEach(p => {
-    rows.push([
-      p.id, p.emp, punchLabel(p.type), fmtTime(p.ts),
-      new Date(p.ts).toISOString(), p.hasPhoto ? 'Yes' : 'No', p.synced ? 'Yes' : 'No'
-    ]);
+function exportCSV(){
+  const rows=[['ID','Employee','Type','Time','Timestamp','Photo','Synced']];
+  punches.sort((a,b)=>a.ts-b.ts).forEach(p=>{
+    rows.push([p.id,p.emp,punchLabel(p.type),fmtTime(p.ts),new Date(p.ts).toISOString(),p.photo?'Yes':'No',p.synced?'Yes':'No']);
   });
-  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = `deadline-signs-timeclock-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`timeclock-${new Date().toISOString().slice(0,10)}.csv`;a.click();
 }
 
-// ── LIGHTBOX ──
-async function openLightbox(id) {
-  const photo = await PhotoDB.get(id);
-  if (!photo) { showToast('Photo not available', 'red'); return; }
-  document.getElementById('lightboxImg').src = photo;
-  openModal('photoLightbox');
+function openLightbox(id){
+  const p=punches.find(x=>x.id===id);if(!p||!p.photo)return;
+  document.getElementById('lightboxImg').src=p.photo;openModal('photoLightbox');
 }
 
-// ── MODAL HELPERS ──
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-  if (id === 'punchOverlay') stopCamera();
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function init(){
+  render();
+  if(settings.sheetsUrl)updateSyncUI('ok','Configured');
+  setInterval(()=>{if(employees.some(e=>['in','break','install'].includes(getStatus(e.name))))renderGrid();},60000);
 }
 
-// ── CAPACITOR PLUGINS ──
-function initCapacitor() {
-  try {
-    if (window.Capacitor && window.Capacitor.Plugins) {
-      const { StatusBar, KeepAwake } = window.Capacitor.Plugins;
-      if (StatusBar) StatusBar.hide().catch(() => {});
-      if (KeepAwake) KeepAwake.keepAwake().catch(() => {});
-    }
-  } catch (e) { /* Running in browser, ignore */ }
-}
-
-// ── INIT ──
-render();
-if (settings.sheetsUrl) updateSyncUI('ok', 'Configured');
-initCapacitor();
-
-// Retry unsynced punches after 2s
-setTimeout(retryPending, 2000);
-
-// Auto-refresh totals while someone is clocked in
-setInterval(() => {
-  if (employees.some(e => getStatus(e) === 'in')) renderGrid();
-}, 60000);
-
-// Clean up old photos (>30 days) on load
-PhotoDB.cleanup(30);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
 </script>
 </body>
 </html>

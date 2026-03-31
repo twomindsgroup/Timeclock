@@ -3,14 +3,19 @@
   "appName": "DS Time Clock",
   "webDir": "www",
   "android": {
-    "allowMixedContent": true
+    "backgroundColor": "#0d0f14",
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false,
+    "screenOrientation": "landscape"
   },
   "plugins": {
+    "KeepAwake": {},
+    "ScreenOrientation": {},
     "StatusBar": {
-      "visible": false
-    },
-    "KeepAwake": {
-      "enabled": true
+      "overlaysWebView": false,
+      "style": "Dark",
+      "backgroundColor": "#141720"
     }
   }
 }
