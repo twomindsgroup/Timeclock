@@ -237,7 +237,10 @@ async function fetchStatus() {
   if (!apiUrl) return;
   document.getElementById('refreshLabel').textContent = 'Updating...';
   try {
-    const res = await fetch(apiUrl + '?action=today', { redirect: 'follow' });
+    // Google Apps Script redirects (302) to a googleusercontent.com URL.
+    // Use the full URL with action param and follow redirects.
+    const res = await fetch(apiUrl + '?action=today');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data.success) {
       renderDashboard(data.punches);
@@ -358,18 +361,18 @@ async function saveUrl() {
     return;
   }
 
-  errEl.textContent = 'Testing connection...';
+  errEl.textContent = 'Connecting...';
   try {
-    const res = await fetch(url + '?action=today', { redirect: 'follow' });
+    const res = await fetch(url + '?action=today');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    if (!data.success && data.error) {
-      errEl.textContent = 'Connected but got error: ' + data.error;
-      return;
+    if (data.success) {
+      apiUrl = url;
+      localStorage.setItem('tc_dash_url', url);
+      startDashboard();
+    } else {
+      errEl.textContent = 'Connected but got error: ' + (data.error || 'Unknown');
     }
-    // Success
-    apiUrl = url;
-    localStorage.setItem('tc_dash_url', url);
-    startDashboard();
   } catch (err) {
     errEl.textContent = 'Connection failed. Check the URL and make sure the Apps Script is deployed as "Anyone".';
   }
